@@ -32,12 +32,10 @@ defmodule Servy.Handler do
 
   def apply_emoji(conv), do: conv
 
-  def track(%{status: status, path: path, resp_body: resp_body, param_map: param_map, method: method} = conv) do
-    Logger.info "[response] status: #{status} method: #{method}, path: #{path}, resp_body: #{resp_body} param_map: #{param_map_to_string(param_map)}"
+  def track(%{status: status, path: path, param_map: param_map, method: method} = conv) do
+    Logger.info "[response] status: #{status} method: #{method}, path: #{path}, param_map: #{param_map_to_string(param_map)}"
     conv
   end
-
-  def track(conv), do: conv
 
   def rewrite_path(%{path: "/wildlife"} = conv) do
     %{conv | path: "/wildthings"}
@@ -75,6 +73,11 @@ defmodule Servy.Handler do
     %{conv | status: 200, resp_body: "Black, Grizzly, Brown"}
   end
 
+  def route(%{method: "GET", path: "/bears/" <> id} = conv) when id == "new" do
+    get_page("form")
+    |> handle_file(conv)
+  end
+
   def route(%{method: "GET", path: "/bears/" <> id} = conv) do
     %{conv | status: 200, resp_body: "Bear #{id}"}
   end
@@ -87,8 +90,31 @@ defmodule Servy.Handler do
     %{ conv | status: 403, resp_body: "Bears must never be deleted!"}
   end
 
+  def route(%{method: "GET", path: "/pages/" <> page_name} = conv) do
+    get_page(page_name)
+    |> handle_file(conv)
+  end
+
   def route(%{path: path} = conv) do
     %{conv | status: 404, resp_body: "No, #{path} here!"}
+  end
+
+  defp get_page(page_name) do
+    Path.expand("../../pages", __DIR__)
+      |> Path.join(page_name <> ".html")
+      |> File.read
+  end
+
+  defp handle_file({:ok, content}, conv) do
+    %{conv | status: 200, resp_body: content}
+  end
+
+  defp handle_file({:error, :enoent}, conv) do
+    %{conv | status: 404, resp_body: "File not found!"}
+  end
+
+  defp handle_file({:error, reason}, conv) do
+    %{conv | status: 500, resp_body: reason}
   end
 
   defp param_map_to_string(param_map) when param_map != nil, do: Enum.map_join(param_map, ", ", fn {key, val} -> ~s{"#{key}", "#{val}"} end)
@@ -125,8 +151,34 @@ defmodule Servy.Handler do
   end
 end
 
+
+request = """
+GET /pages/about HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts response
+IO.puts "___"
 request = """
 GET /sasquatch HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts response
+IO.puts "___form.html"
+
+request = """
+GET /bears/new HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
