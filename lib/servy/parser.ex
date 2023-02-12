@@ -3,6 +3,8 @@ defmodule Servy.Parser do
   Parses requests into usable data for Servy.
   """
 
+  alias Servy.Conv
+
   def parse(request) do
     request
     |> String.split("\n")
@@ -13,10 +15,10 @@ defmodule Servy.Parser do
   end
 
   defp to_conv([method, path, _]) do
-    %{method: method, path: path, resp_body: "", status: nil, param_map: nil}
+    %Conv{method: method, path: path}
   end
 
-  defp add_param_map(conv) do
+  defp add_param_map(%Conv{} = conv) do
     destructure([_path, param_string], String.split(conv.path, "?"))
 
     case param_string do

@@ -5,6 +5,8 @@ defmodule Servy.Handler do
   import Servy.Parser, only: [parse: 1]
   import Servy.Routes, only: [route: 1]
 
+  alias Servy.Conv
+
   @doc "Transforms the request into a resonse."
   def handle(request) do
     request
@@ -17,25 +19,14 @@ defmodule Servy.Handler do
     |> format_response
   end
 
-  defp format_response(conv) do
+  defp format_response(%Conv{} = conv) do
     """
-    HTTP/1.1 #{conv.status} #{status_reason(conv.status)}
+    HTTP/1.1 #{Conv.full_status(conv)}
     Content-Type: text/html
     Content-Length: #{byte_size(conv.resp_body)}
 
     #{conv.resp_body}
     """
-  end
-
-  defp status_reason(code) do
-    %{
-      200 => "OK",
-      201 => "Created",
-      401 => "Unauthorized",
-      403 => "Forbidden",
-      404 => "Not Found",
-      500 => "Internal Server Error"
-    }[code]
   end
 end
 
