@@ -6,32 +6,39 @@ defmodule Servy.Parser do
   alias Servy.Conv
 
   def parse(request) do
-    request
-    |> String.split("\n")
-    |> List.first
-    |> String.split(" ")
-    |> to_conv
-    |> add_param_map
+    [top, body] = String.split(request, "\n\n")
+
+    [request_line | header_lines] = String.split(top, "\n")
+
+    [method, path, _] = String.split(request_line, " ")
+
+    destructure([_, query_param_string], String.split(path, "?"))
+
+    headers = parse_headers(header_lines)
+
+    %Conv{
+      method: method,
+      path: path,
+      param_map: URI.decode_query(query_param_string || "", %{}),
+      body: parse_body(headers["Content-Type"], body),
+      headers: headers
+    }
   end
 
-  defp to_conv([method, path, _]) do
-    %Conv{method: method, path: path}
+  def parse_body("application/x-www-form-urlencoded", body) do
+    body
+    |> String.trim
+    |> URI.decode_query(%{})
   end
 
-  defp add_param_map(%Conv{} = conv) do
-    destructure([_path, param_string], String.split(conv.path, "?"))
+  def parse_body(_, _), do: %{}
 
-    case param_string do
-      nil -> conv
-      _ -> %{conv | param_map: extract_params(param_string)}
-    end
-  end
+  def parse_headers(_header_strings, headers \\ %{})
 
-  defp extract_params(path) do
-    path
-    |> String.split("&")
-    |> Enum.map(fn (param) -> String.split(param, "=") end)
-    |> Enum.map(fn ([head|[tail]]) -> {head, tail} end)
-    |> Map.new
+  def parse_headers([], headers), do: headers
+
+  def parse_headers([header_string | tail], headers) do
+    [header_key, header_value] = String.split(header_string, ": ")
+    parse_headers(tail, Map.put(headers, header_key, header_value))
   end
 end

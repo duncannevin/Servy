@@ -16,8 +16,12 @@ defmodule Servy.Routes do
     %{conv | status: 200, resp_body: "Wildthing #{id}"}
   end
 
-  def route(%Conv{method: "GET", path: "/wildthings?" <> _param_string} = conv) when is_map_key(conv.param_map, "id") do
-    %{conv | status: 200, resp_body: "Wildthing #{conv.param_map["id"]}"}
+  def route(%Conv{method: "GET", path: "/wildthings?" <> _param_string, param_map: param_map} = conv) when is_map_key(conv.param_map, "id") do
+    %{conv | status: 200, resp_body: "Wildthing #{param_map["id"]}"}
+  end
+
+  def route(%Conv{method: "POST", path: "/bears", body: body} = conv) do
+    %{conv | status: 201, resp_body: "Post a #{body["type"]} bear named #{body["name"]}"}
   end
 
   def route(%Conv{method: "GET", path: "/bears"} = conv) do
@@ -33,8 +37,8 @@ defmodule Servy.Routes do
     %{conv | status: 200, resp_body: "Bear #{id}"}
   end
 
-  def route(%Conv{method: "GET", path: "/bears?" <> _param_string} = conv) when is_map_key(conv.param_map, "id") do
-    %{conv | status: 200, resp_body: "Bear #{conv.param_map["id"]}"}
+  def route(%Conv{method: "GET", path: "/bears?" <> _param_string, param_map: param_map} = conv) when is_map_key(conv.param_map, "id") do
+    %{conv | status: 200, resp_body: "Bear #{param_map["id"]}"}
   end
 
   def route(%Conv{method: "DELETE", path: "/bears/" <> _id} = conv) do

@@ -29,6 +29,7 @@ defmodule Servy.Handler do
     """
   end
 end
+IO.puts "___"
 
 request = """
 GET /pages/about HTTP/1.1
@@ -165,6 +166,21 @@ Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
 
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts response
+IO.puts "___"
+
+request = """
+POST /bears HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+Content-Type: application/x-www-form-urlencoded
+
+name=Baloo&type=Brown
 """
 
 response = Servy.Handler.handle(request)
