@@ -19,7 +19,9 @@ defmodule Servy.Plugins do
   def apply_emoji(%Conv{} = conv), do: conv
 
   def track(%Conv{status: status, path: path, param_map: param_map, method: method} = conv) do
-    Logger.info "[response] status: #{status} method: #{method}, path: #{path}, param_map: #{param_map_to_string(param_map)}"
+    if Mix.env != :test do
+      Logger.info "[response] status: #{status} method: #{method}, path: #{path}, param_map: #{param_map_to_string(param_map)}"
+    end
     conv
   end
 
@@ -30,7 +32,9 @@ defmodule Servy.Plugins do
   def rewrite_path(conv), do: conv
 
   def log(%Conv{path: path, param_map: param_map, method: method} = conv) do
-    Logger.debug "[request] method: #{method}, path: #{path}, param_map: #{param_map_to_string(param_map)}"
+    if Mix.env == :dev do
+      Logger.debug "[request] method: #{method}, path: #{path}, param_map: #{param_map_to_string(param_map)}"
+    end
     conv
   end
 

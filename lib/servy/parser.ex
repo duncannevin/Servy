@@ -6,9 +6,9 @@ defmodule Servy.Parser do
   alias Servy.Conv
 
   def parse(request) do
-    [top, body] = String.split(request, "\n\n")
+    [top, body] = String.split(request, "\r\n\r\n")
 
-    [request_line | header_lines] = String.split(top, "\n")
+    [request_line | header_lines] = String.split(top, "\r\n")
 
     [method, path, _] = String.split(request_line, " ")
 
@@ -25,6 +25,16 @@ defmodule Servy.Parser do
     }
   end
 
+  @doc """
+  Parses the body for url encoded form data.
+
+  ## Examples
+    iex> body = "name=Baloo&type=Brown"
+    iex> Servy.Parser.parse_body("application/x-www-form-urlencoded", body)
+    %{"name" => "Baloo", "type" => "Brown"}
+    iex> Servy.Parser.parse_body("application/x-www-form-urlencoded", "")
+    %{}
+  """
   def parse_body("application/x-www-form-urlencoded", body) do
     body
     |> String.trim
