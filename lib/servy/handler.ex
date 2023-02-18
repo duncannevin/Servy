@@ -83,7 +83,7 @@ IO.puts response
 IO.puts "___"
 
 request = """
-GET /bears/123 HTTP/1.1
+GET /bears/1 HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
@@ -93,10 +93,10 @@ Accept: */*
 response = Servy.Handler.handle(request)
 
 IO.puts response
-IO.puts "___123"
+IO.puts "___"
 
 request = """
-GET /bears?id=zzzzzzzzzzzzzz HTTP/1.1
+GET /bears?id=2 HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
@@ -181,6 +181,19 @@ Accept: */*
 Content-Type: application/x-www-form-urlencoded
 
 name=Baloo&type=Brown
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts response
+IO.puts "___"
+
+request = """
+DELETE /bears/2 HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
 """
 
 response = Servy.Handler.handle(request)

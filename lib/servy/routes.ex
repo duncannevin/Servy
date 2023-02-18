@@ -7,6 +7,7 @@ defmodule Servy.Routes do
   import Servy.FileHandler, only: [handle_file: 2]
 
   alias Servy.Conv
+  alias Servy.BearController
 
   def route(%Conv{method: "GET", path: "/wildthings"} = conv) do
     %{conv | status: 200, resp_body: "Bears, Lions, Tigers"}
@@ -20,29 +21,25 @@ defmodule Servy.Routes do
     %{conv | status: 200, resp_body: "Wildthing #{param_map["id"]}"}
   end
 
-  def route(%Conv{method: "POST", path: "/bears", body: body} = conv) do
-    %{conv | status: 201, resp_body: "Post a #{body["type"]} bear named #{body["name"]}"}
+  def route(%Conv{method: "POST", path: "/bears"} = conv) do
+    BearController.create(conv)
   end
 
   def route(%Conv{method: "GET", path: "/bears"} = conv) do
-    %{conv | status: 200, resp_body: "Black, Grizzly, Brown"}
-  end
-
-  def route(%Conv{method: "GET", path: "/bears/" <> id} = conv) when id == "new" do
-    get_page("form")
-    |> handle_file(conv)
+    BearController.index(conv)
   end
 
   def route(%Conv{method: "GET", path: "/bears/" <> id} = conv) do
-    %{conv | status: 200, resp_body: "Bear #{id}"}
+    params = %{"id" => id}
+    BearController.show(conv, params)
   end
 
   def route(%Conv{method: "GET", path: "/bears?" <> _param_string, param_map: param_map} = conv) when is_map_key(conv.param_map, "id") do
-    %{conv | status: 200, resp_body: "Bear #{param_map["id"]}"}
+    BearController.show(conv, param_map)
   end
 
-  def route(%Conv{method: "DELETE", path: "/bears/" <> _id} = conv) do
-    %{ conv | status: 403, resp_body: "Bears must never be deleted!"}
+  def route(%Conv{method: "DELETE", path: "/bears/" <> id} = conv) do
+    BearController.delete(conv, %{"id" => id})
   end
 
   def route(%Conv{method: "GET", path: "/pages/" <> page_name} = conv) do

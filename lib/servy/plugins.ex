@@ -9,11 +9,11 @@ defmodule Servy.Plugins do
   alias Servy.Conv
 
   def apply_emoji(%Conv{status: 200} = conv) do
-    %{conv | resp_body: "\xF0\x9F\x9A\x80 " <> conv.resp_body <> " \xF0\x9F\x9A\x80"}
+    %{conv | headers: Map.put(conv.headers, "STATUS_EMOJI", "\xF0\x9F\x9A\x80")}
   end
 
   def apply_emoji(%Conv{status: 404} = conv) do
-    %{conv | resp_body: "\xF0\x9F\x98\xA1 " <> conv.resp_body <> " \xF0\x9F\x98\xA1"}
+    %{conv | headers: Map.put(conv.headers, "STATUS_EMOJI", " \xF0\x9F\x98\xA1")}
   end
 
   def apply_emoji(%Conv{} = conv), do: conv
