@@ -4,7 +4,7 @@ defmodule Servy.Wildthings do
   def list_bears do
     [
       %Bear{id: 1, name: "Teddy", type: "Brown", hibernating: true},
-      %Bear{id: 2, name: "Smokey", type: "black"},
+      %Bear{id: 2, name: "Smokey", type: "Black"},
       %Bear{id: 3, name: "Paddington", type: "Brown"},
       %Bear{id: 4, name: "Scarface", type: "Grizzly", hibernating: true},
       %Bear{id: 5, name: "Snow", type: "Polar"},
