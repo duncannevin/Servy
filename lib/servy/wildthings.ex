@@ -10,7 +10,10 @@ defmodule Servy.Wildthings do
 
     case Poison.decode!(json, %{as: %{"bears" => [%Bear{}]}}) do
       {:error, _} -> []
-      %{"bears" => bears} -> bears
+      %{"bears" => bears} -> cond do
+        Mix.env == :test -> Enum.filter(bears, & &1.id < 11)
+        true -> bears
+      end
     end
   end
 
@@ -32,9 +35,11 @@ defmodule Servy.Wildthings do
     bears_json = %{bears: [bear | existing_bears]}
     |> Poison.encode!
 
-    @db_path
-    |> Path.join("bears.json")
-    |> File.write!(bears_json, [:binary])
+    if Mix.env != :test do
+      @db_path
+      |> Path.join("bears.json")
+      |> File.write!(bears_json, [:binary])
+    end
 
     bear
   end
@@ -46,9 +51,11 @@ defmodule Servy.Wildthings do
     bears_json = %{bears: updated_bears}
     |> Poison.encode!
 
-    @db_path
-    |> Path.join("bears.json")
-    |> File.write!(bears_json, [:binary])
+    if Mix.env != :test do
+      @db_path
+      |> Path.join("bears.json")
+      |> File.write!(bears_json, [:binary])
+    end
 
     updated_bears
   end
