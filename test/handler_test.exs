@@ -16,8 +16,8 @@ defmodule HandlerTest do
 
     expected_response = """
     HTTP/1.1 200 OK\r
-    Content-Type: application/json\r
     Content-Length: 605\r
+    Content-Type: application/json\r
     \r
     [{"type":"Brown","name":"Teddy","id":1,"hibernating":true},
      {"type":"Black","name":"Smokey","id":2,"hibernating":false},
@@ -47,8 +47,8 @@ defmodule HandlerTest do
 
     assert response == """
     HTTP/1.1 200 OK\r
-    Content-Type: text/html\r
     Content-Length: 20\r
+    Content-Type: text/html\r
     \r
     Bears, Lions, Tigers
     """
@@ -67,8 +67,8 @@ defmodule HandlerTest do
 
     expected_response = """
     HTTP/1.1 200 OK\r
-    Content-Type: text/html\r
     Content-Length: 336\r
+    Content-Type: text/html\r
     \r
     <h1>AllTheBears!</h1>
     <ul>
@@ -101,8 +101,8 @@ defmodule HandlerTest do
 
     expected_response = """
     HTTP/1.1 200 OK\r
-    Content-Type: text/html\r
     Content-Length: 51\r
+    Content-Type: text/html\r
     \r
     <h1>Show Bear</h1>
     <p>
@@ -117,8 +117,8 @@ defmodule HandlerTest do
     request = """
     GET /wildlife HTTP/1.1\r
     Host: example.com\r
-    User-Agent: ExampleBrowser/1.0\r
     Accept: */*\r
+    User-Agent: ExampleBrowser/1.0\r
     \r
     """
 
@@ -126,8 +126,8 @@ defmodule HandlerTest do
 
     assert response == """
     HTTP/1.1 200 OK\r
-    Content-Type: text/html\r
     Content-Length: 20\r
+    Content-Type: text/html\r
     \r
     Bears, Lions, Tigers
     """
@@ -149,10 +149,33 @@ defmodule HandlerTest do
 
     assert response == """
     HTTP/1.1 201 Created\r
-    Content-Type: text/html\r
     Content-Length: 32\r
+    Content-Type: text/html\r
     \r
     Created a Brown bear named Baloo
+    """
+  end
+
+  test "POST /api/bears" do
+    request = """
+    POST /api/bears HTTP/1.1\r
+    Host: example.com\r
+    User-Agent: ExampleBrowser/1.0\r
+    Accept: */*\r
+    Content-Type: application/json\r
+    Content-Length: 21\r
+    \r
+    {"name": "Breezly", "type": "Polar"}
+    """
+
+    response = handle(request)
+
+    assert response == """
+    HTTP/1.1 201 Created\r
+    Content-Length: 63\r
+    Content-Type: application/json\r
+    \r
+    {"status":"created","msg":"Created a Polar bear named Breezly"}
     """
   end
 

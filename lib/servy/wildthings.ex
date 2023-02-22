@@ -1,19 +1,17 @@
 defmodule Servy.Wildthings do
   alias Servy.Bear
 
-  def list_bears do
-    [
-      %Bear{id: 1, name: "Teddy", type: "Brown", hibernating: true},
-      %Bear{id: 2, name: "Smokey", type: "Black"},
-      %Bear{id: 3, name: "Paddington", type: "Brown"},
-      %Bear{id: 4, name: "Scarface", type: "Grizzly", hibernating: true},
-      %Bear{id: 5, name: "Snow", type: "Polar"},
-      %Bear{id: 6, name: "Brutus", type: "Grizzly"},
-      %Bear{id: 7, name: "Rosie", type: "Black", hibernating: true},
-      %Bear{id: 8, name: "Roscoe", type: "Panda"},
-      %Bear{id: 9, name: "Iceman", type: "Polar", hibernating: true},
-      %Bear{id: 10, name: "Kenai", type: "Grizzly"},
-    ]
+  @db_path Path.expand("../../db", __DIR__)
+
+  def list_bears() do
+    {:ok, json} = @db_path
+    |> Path.join("bears.json")
+    |> File.read
+
+    case Poison.decode!(json, %{as: %{"bears" => [%Bear{}]}}) do
+      {:error, _} -> []
+      %{"bears" => bears} -> bears
+    end
   end
 
   def get_bear(id) when is_integer(id) do
@@ -27,16 +25,38 @@ defmodule Servy.Wildthings do
     end
   end
 
+  def create_bear(name, type) do
+    existing_bears = list_bears()
+    bear = %Bear{name: name, type: type, id: length(existing_bears) + 1}
+
+    bears_json = %{bears: [bear | existing_bears]}
+    |> Poison.encode!
+
+    @db_path
+    |> Path.join("bears.json")
+    |> File.write!(bears_json, [:binary])
+
+    bear
+  end
+
   def delete_bear(id) when is_integer(id) do
-    list_bears()
+    updated_bears = list_bears()
     |> Enum.filter(& &1.id != id)
+
+    bears_json = %{bears: updated_bears}
+    |> Poison.encode!
+
+    @db_path
+    |> Path.join("bears.json")
+    |> File.write!(bears_json, [:binary])
+
+    updated_bears
   end
 
   def delete_bear(id) when is_binary(id) do
     cond do
-      String.match?(id, ~r/^\d+$/) -> list_bears()
-      |> Enum.filter(& &1.id != id)
-      true -> []
+      String.match?(id, ~r/^\d+$/) -> id |> String.to_integer |> delete_bear
+      true -> nil
     end
   end
 end

@@ -41,4 +41,12 @@ defmodule Servy.Plugins do
   def param_map_to_string(param_map) when param_map != nil, do: Enum.map_join(param_map, ", ", fn {key, val} -> ~s{"#{key}", "#{val}"} end)
 
   def param_map_to_string(_param_map), do: "nil"
+
+  def put_resp_content_type(%Conv{resp_headers: resp_headers} = conv, content_type) do
+    %{conv | resp_headers: Map.put(resp_headers, "Content-Type", content_type)}
+  end
+
+  def put_resp_content_length(%Conv{resp_headers: resp_headers, resp_body: resp_body} = conv) do
+    %{conv | resp_headers: Map.put(resp_headers, "Content-Length", Integer.to_string(byte_size(resp_body)))}
+  end
 end

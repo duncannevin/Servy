@@ -8,6 +8,6 @@ defmodule Servy.Bear do
   end
 
   def order_asc_by_name(%Bear{} = bear1, %Bear{} = bear2) do
-    bear1 <= bear2
+    bear1.name <= bear2.name
   end
 end
