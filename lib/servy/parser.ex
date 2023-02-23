@@ -16,11 +16,13 @@ defmodule Servy.Parser do
 
     headers = parse_headers(header_lines)
 
+    content_type = headers["Content-Type"] || headers["content-type"]
+
     %Conv{
       method: method,
       path: path,
       param_map: URI.decode_query(query_param_string || "", %{}),
-      body: parse_body(headers["Content-Type"], body),
+      body: parse_body(content_type, body),
       headers: headers
     }
   end
