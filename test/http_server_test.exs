@@ -16,18 +16,49 @@ defmodule HttpServerTest do
   test "accepts multiple request on port 8080" do
     spawn(HttpServer, :start, [8080])
 
-    parent = self()
+    values = [
+      "http://localhost:8080/bears",
+      "http://localhost:8080/bears/1",
+      "http://localhost:8080/bears?id=2"
+    ]
+    |> Enum.map(& Task.async(HTTPoison, :get, [&1]))
+    |> Enum.map(& Task.await(&1))
+    |> Enum.map(fn ({:ok, result}) -> {Map.get(result, "status_code"), Map.get(result, "body")} end)
 
-    spawn(fn -> send(parent, HTTPoison.get "http://localhost:8080/wildthings") end)
-    spawn(fn -> send(parent, HTTPoison.get "http://localhost:8080/wildthings") end)
-    spawn(fn -> send(parent, HTTPoison.get "http://localhost:8080/wildthings") end)
+    bears_html = """
+    <h1>AllTheBears!</h1>
+    <ul>
+      <li>Smokey-Black</li>
+      <li>Paddington-Brown</li>
+      <li>Snow-Polar</li>
+      <li>Brutus-Grizzly</li>
+      <li>Roscoe-Panda</li>
+      <li>Kenai-Grizzly</li>
+      <li>Teddy-Brown</li>
+      <li>Scarface-Grizzly</li>
+      <li>Rosie-Black</li>
+      <li>Iceman-Polar</li>
+    </ul>
+    """
 
-    res1 = receive do {:ok, response} -> {response.status_code, response.body} end
-    res2 = receive do {:ok, response} -> {response.status_code, response.body} end
-    res3 = receive do {:ok, response} -> {response.status_code, response.body} end
+    bear_html1 = """
+    <h1>Show Bear</h1>
+    <p>
+    Teddy is hibernating.
+    </p>
+    """
 
-    assert res1 == {200, "Bears, Lions, Tigers"}
-    assert res2 == {200, "Bears, Lions, Tigers"}
-    assert res3 == {200, "Bears, Lions, Tigers"}
+    bear_html2 = """
+    <h1>Show Bear</h1>
+    <p>
+    Smokey is not hibernating.
+    </p>
+    """
+
+    values == [
+      {200, bears_html},
+      {200, bear_html1},
+      {200, bear_html2}
+    ]
   end
 end

@@ -1,0 +1,13 @@
+<h1>Snapshots</h1>
+
+<p>We've seen bigfoot at these locations:</p>
+
+<div>
+  <ul>
+    <%= for snapshot <- snapshots do %>
+    <li><%= snapshot %></li>
+    <% end %>
+  </ul>
+</div>
+
+<p>His last known location was: lat: <%= bigfoot_location.lat %>, lng: <%= bigfoot_location.lng %></p>

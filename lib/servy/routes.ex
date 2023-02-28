@@ -6,24 +6,12 @@ defmodule Servy.Routes do
   import Servy.PageHandler, only: [get_page: 1]
   import Servy.FileHandler, only: [handle_file: 2]
 
+  alias Servy.SnapshotController
   alias Servy.Conv
   alias Servy.BearController
-  alias Servy.VideoCam
 
   def route(%Conv{ method: "GET", path: "/snapshots" } = conv) do
-    parent = self()
-
-    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-1")}) end)
-    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-2")}) end)
-    spawn(fn -> send(parent, {:result, VideoCam.get_snapshot("cam-3")}) end)
-
-    snapshot1 = receive do {:result, filename} -> filename end
-    snapshot2 = receive do {:result, filename} -> filename end
-    snapshot3 = receive do {:result, filename} -> filename end
-
-    snapshots = [snapshot1, snapshot2, snapshot3]
-
-    %{ conv | status: 200, resp_body: inspect snapshots}
+    SnapshotController.snapshots(conv)
   end
 
   def route(%Conv{method: "GET", path: "/kaboom"}) do
