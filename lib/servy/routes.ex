@@ -10,6 +10,14 @@ defmodule Servy.Routes do
   alias Servy.Conv
   alias Servy.BearController
 
+  def route(%Conv{method: "POST", path: "/pledges"} = conv) do
+    Servy.PledgeController.create(conv, conv.body)
+  end
+
+  def route(%Conv{method: "GET", path: "/pledges"} = conv) do
+    Servy.PledgeController.index(conv)
+  end
+
   def route(%Conv{ method: "GET", path: "/snapshots" } = conv) do
     SnapshotController.snapshots(conv)
   end
