@@ -3,9 +3,9 @@ defmodule Servy.Kickstarter do
 
   @name :http_server
 
-  def start do
+  def start_link(_arg) do
     IO.puts "Starting the kickstarter..."
-    GenServer.start(__MODULE__, :ok, name: __MODULE__)
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   def init(:ok) do
